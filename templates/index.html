@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Assess a Product</h2>
+    <p style="margin-bottom: 1.5rem; color: #666;">
+        Enter a product name, vendor, URL, or SHA1 hash to generate a comprehensive security assessment.
+    </p>
+    
+    <form id="assessmentForm">
+        <div class="form-group">
+            <label for="input_text">Product Name, Vendor, URL, or SHA1 Hash</label>
+            <input 
+                type="text" 
+                id="input_text" 
+                name="input_text" 
+                placeholder="e.g., Slack, Microsoft Teams, https://example.com, or bcd9fd198cab024450c1f2d09d83aeeeee6a2a4a"
+                required
+            >
+            <small style="color: #888; display: block; margin-top: 0.5rem;">
+                SHA1 hashes will be automatically looked up in VirusTotal to identify the product.
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" id="use_cache" name="use_cache" checked>
+                Use cached results (if available within 24 hours)
+            </label>
+        </div>
+        
+        <button type="submit" id="submitBtn">Generate Assessment</button>
+    </form>
+</div>
+
+<div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div id="progressContainer" style="margin-top: 1.5rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <p id="progressMessage">Initializing assessment...</p>
+        
+        <!-- Multi-agent progress stages -->
+        <div id="multiAgentProgress" style="display: none; margin-top: 1rem;">
+            <div class="progress-stage" data-stage="preparation">
+                <div class="progress-icon">⏳</div>
+                <div class="progress-label">Preparing Data</div>
+                <div class="progress-status">pending</div>
+            </div>
+            <div class="progress-stage" data-stage="research">
+                <div class="progress-icon">🔍</div>
+                <div class="progress-label">Research Agent Analyzing</div>
+                <div class="progress-status">pending</div>
+            </div>
+            <div class="progress-stage" data-stage="verification">
+                <div class="progress-icon">✅</div>
+                <div class="progress-label">Verification Agent Cross-checking</div>
+                <div class="progress-status">pending</div>
+            </div>
+            <div class="progress-stage" data-stage="synthesis">
+                <div class="progress-icon">📝</div>
+                <div class="progress-label">Synthesis Agent Compiling</div>
+                <div class="progress-status">pending</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="results" style="display: none;">
+    <div class="card">
+        <h2>Assessment Results</h2>
+        <div id="resultsContent"></div>
+    </div>
+</div>
+
+<div id="errorMsg"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/progress-tracker.js') }}?v=10"></script>
+<script src="{{ url_for('static', filename='js/security-graph.js') }}"></script>
+<script src="{{ url_for('static', filename='js/assessment-display.js') }}?v=10"></script>
+<script src="{{ url_for('static', filename='js/form-handler.js') }}?v=10"></script>
+
+{% if show_cached and cached_assessment %}
+<script>
+    // Automatically display cached assessment when loaded from history
+    document.addEventListener('DOMContentLoaded', function() {
+        const cachedData = {{ cached_assessment | tojson | safe }};
+        
+        // Hide the form and show results
+        document.querySelector('.card').style.display = 'none';
+        
+        // Display the cached assessment
+        const resultsDiv = document.getElementById('results');
+        const resultsContent = document.getElementById('resultsContent');
+        
+        resultsDiv.style.display = 'block';
+        
+        // Add a banner showing this is from cache
+        const cacheBanner = document.createElement('div');
+        cacheBanner.style.cssText = 'background: #e3f2fd; border-left: 4px solid #2196f3; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;';
+        cacheBanner.innerHTML = `
+            <strong>📋 Cached Assessment</strong><br>
+            <small style="color: #666;">
+                This assessment was retrieved from history. 
+                <a href="/" style="color: #2196f3;">Create new assessment</a>
+            </small>
+        `;
+        resultsContent.appendChild(cacheBanner);
+        
+        // Display the assessment using the standard display function
+        displayAssessment(cachedData);
+    });
+</script>
+{% endif %}
+{% endblock %}

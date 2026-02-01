@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Security Assessor{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        nav {
+            margin-top: 1rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .card h2 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fee;
+            border-left: 4px solid #c33;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: #c33;
+        }
+        
+        .success {
+            background: #efe;
+            border-left: 4px solid #3c3;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            color: #3c3;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        .badge.critical {
+            background: #fee;
+            color: #c33;
+        }
+        
+        .badge.high {
+            background: #fed;
+            color: #e67e22;
+        }
+        
+        .badge.medium {
+            background: #ffc;
+            color: #f39c12;
+        }
+        
+        .badge.low {
+            background: #efe;
+            color: #27ae60;
+        }
+        
+        /* Progress stages styling */
+        .progress-stage {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            background: #f8f9fa;
+            border-left: 4px solid #ddd;
+            transition: all 0.3s ease;
+        }
+        
+        .progress-stage.in_progress {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            animation: pulse 2s infinite;
+        }
+        
+        .progress-stage.completed {
+            background: #e8f5e9;
+            border-left-color: #4caf50;
+        }
+        
+        .progress-stage.failed {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .progress-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            min-width: 2rem;
+            text-align: center;
+        }
+        
+        .progress-label {
+            flex-grow: 1;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .progress-status {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            background: white;
+        }
+        
+        .progress-stage.in_progress .progress-status {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .progress-stage.completed .progress-status {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .progress-stage.failed .progress-status {
+            background: #f44336;
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #888;
+            margin-top: 3rem;
+        }
+    </style>
+    
+    <!-- Chart.js for timeline visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Vis.js Network for Security Ecosystem Graph -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://unpkg.com/vis-network/styles/vis-network.min.css" rel="stylesheet" type="text/css" />
+    
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🛡️ Security Assessor</h1>
+            <p>AI-Powered Security Assessment for Software Products</p>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/history">History</a>
+                <a href="/compare">Compare</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>Security Assessor v1.0 | Built for CISO-ready trust briefs</p>
+        </div>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

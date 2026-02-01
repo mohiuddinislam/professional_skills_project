@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Assessment History</h2>
+    <p style="margin-bottom: 1.5rem; color: #666;">
+        Previously generated security assessments
+    </p>
+    
+    {% if assessments %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8f9fa; text-align: left;">
+                <th style="padding: 1rem;">Product</th>
+                <th style="padding: 1rem;">Vendor</th>
+                <th style="padding: 1rem;">Trust Score</th>
+                <th style="padding: 1rem;">Last Updated</th>
+                <th style="padding: 1rem;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assessment in assessments %}
+            <tr style="border-bottom: 1px solid #e1e8ed;">
+                <td style="padding: 1rem;">{{ assessment.product_name }}</td>
+                <td style="padding: 1rem;">{{ assessment.vendor or 'N/A' }}</td>
+                <td style="padding: 1rem;">
+                    {% if assessment.trust_score %}
+                        {% set score = assessment.trust_score %}
+                        {% if score < 40 %}
+                            <span class="badge critical">{{ score }}/100</span>
+                        {% elif score < 60 %}
+                            <span class="badge high">{{ score }}/100</span>
+                        {% elif score < 75 %}
+                            <span class="badge medium">{{ score }}/100</span>
+                        {% else %}
+                            <span class="badge low">{{ score }}/100</span>
+                        {% endif %}
+                    {% else %}
+                        <span style="color: #ff9800;">Insufficient Data</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 1rem;">{{ assessment.updated_at }}</td>
+                <td style="padding: 1rem;">
+                    <a href="/assessment/{{ assessment.id }}" class="btn btn-secondary" style="text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px; background: #0066cc; color: white; font-size: 0.9rem;">
+                        View Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; padding: 2rem; color: #888;">
+        No assessments yet. <a href="/">Create your first assessment</a>
+    </p>
+    {% endif %}
+</div>
+{% endblock %}
