@@ -1,0 +1,16 @@
+Flask
+flask_cors
+google-genai
+requests
+python-dotenv
+beautifulsoup4
+lxml
+cachetools
+langchain
+langchain-google-genai
+langgraph
+SQLAlchemy
+gunicorn
+langgraph
+mitreattack-python
+stix2
